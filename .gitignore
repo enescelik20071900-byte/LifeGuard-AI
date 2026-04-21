@@ -1,0 +1,5 @@
+.env
+__pycache__/
+*.pyc
+lifeguard_logs.db
+venv/
