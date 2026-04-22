@@ -31,7 +31,7 @@ LifeGuard AI, günümüz güvenlik ihtiyaçlarına modern çözümler sunan, hem
 Proje **Python 3.9+** sürümü ile geliştirilmiştir. Bağımlılıklar `requirements.txt` dosyasında tanımlanmıştır.
 
  1. Adım: Klonlama ve Kurulum
-```bash
+
 git clone https://github.com/<KULLANICI_ADIN>/LifeGuard-AI.git
 cd LifeGuard-AI
 pip install -r requirements.txt
