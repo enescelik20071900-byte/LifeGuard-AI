@@ -1,37 +1,97 @@
-# LifeGuard AI 🛡️
+# 🛡️ LifeGuard AI
 
-LifeGuard AI, postür analizi ve yapay zeka tabanlı güvenlik takibi için geliştirilmiş, ölçeklenebilir ve modüler bir sistemdir.
+**LifeGuard AI**, postür analizi ve yapay zeka tabanlı güvenlik takibi için geliştirilmiş, ölçeklenebilir ve modüler bir sistemdir.
+
+---
 
 ## 📌 Proje Hakkında
-LifeGuard AI, günümüz güvenlik ihtiyaçlarına modern çözümler sunan, hem yerel hem de bulut tabanlı çalışabilen bir yapay zeka sistemidir. Sistem, MediaPipe teknolojisini kullanarak insan postürünü gerçek zamanlı analiz eder ve olası sağlık sorunlarını (bayılma, uyku modu, duruş bozukluğu) tespit ederek anında bildirim gönderir.
+
+LifeGuard AI, günümüz güvenlik ihtiyaçlarına modern çözümler sunan; hem **yerel (local)** hem de **bulut (cloud)** ortamlarında çalışabilen bir yapay zeka sistemidir.
+
+Sistem, **MediaPipe Pose Detection** teknolojisini kullanarak insan postürünü gerçek zamanlı analiz eder ve:
+
+* Bayılma
+* Uyku hali
+* Duruş bozukluğu
+
+gibi durumları tespit ederek anında bildirim gönderir.
+
+---
 
 ## 🚀 Geliştirme Yol Haritası (Roadmap)
 
-- **[TAMAMLANDI]** Core AI (MediaPipe Pose Detection) entegrasyonu.
-- **[TAMAMLANDI]** Telegram Bot API ile anlık görsel/video bildirim sistemi.
-- **[TAMAMLANDI]** Docker container yapısı ile yerel kurulum altyapısı.
-- **[DEVAM EDİYOR]** IP Kamera (RTSP/Stream) desteği ve optimizasyonu.
-- **[DEVAM EDİYOR]** Bulut (Cloud/Render) deploy süreçleri.
-- **[PLANLANIYOR]** Çoklu kamera desteği ve yönetici dashboard paneli.
+* ✅ Core AI (MediaPipe Pose Detection) entegrasyonu
+* ✅ Telegram Bot API ile anlık bildirim sistemi
+* ✅ Docker container altyapısı
+* 🔄 IP Kamera (RTSP/Stream) desteği ve optimizasyonu
+* 🔄 Bulut (Cloud/Render) deploy süreçleri
+* 🧠 Çoklu kamera desteği
+* 📊 Yönetici dashboard paneli
+
+---
 
 ## 🎯 Mevcut Özellikler
-* **Anlık Postür Analizi**: Kullanıcının duruşunu gerçek zamanlı izler ve açısal analiz yapar.
-* **Acil Durum Tespiti**: Bayılma, uyku modu veya hareketsizlik durumlarını otomatik algılar.
-* **Telegram Entegrasyonu**: İhlal anında delil (fotoğraf ve video) göndererek anında uyarı sağlar.
-* **Containerized Architecture**: Docker sayesinde her türlü ortamda izole ve hızlı çalışma garantisi.
+
+* **📡 Anlık Postür Analizi**
+  Gerçek zamanlı duruş takibi ve açısal analiz
+
+* **🚨 Acil Durum Tespiti**
+  Bayılma, uyku veya hareketsizlik algılama
+
+* **📲 Telegram Entegrasyonu**
+  Olay anında fotoğraf ve video ile bildirim
+
+* **🐳 Containerized Architecture**
+  Docker ile hızlı, taşınabilir ve izole çalışma
+
+---
 
 ## 🛠️ Teknik Mimari
-* **Core AI**: MediaPipe (Pose Landmark Detection)
-* **Backend**: Python, Flask, Threading (Asenkron işlemler)
-* **Database**: SQLite (Olay günlüğü ve analiz verileri)
-* **Network**: REST API (Telegram Bot API)
+
+| Katman   | Teknoloji                  |
+| -------- | -------------------------- |
+| Core AI  | MediaPipe (Pose Detection) |
+| Backend  | Python, Flask, Threading   |
+| Database | SQLite                     |
+| Network  | REST API, Telegram Bot API |
+
+---
 
 ## ⚙️ Kurulum ve Gereksinimler
 
-Proje **Python 3.9+** sürümü ile geliştirilmiştir. Bağımlılıklar `requirements.txt` dosyasında tanımlanmıştır.
+Proje **Python 3.9+** ile geliştirilmiştir.
 
-### 1. Adım: Klonlama ve Kurulum
+### 🔧 Kurulum
+
 ```bash
-git clone [https://github.com/enescelik20071900-byte/LifeGuard-AI.git](https://github.com/enescelik20071900-byte/LifeGuard-AI.git)
+git clone https://github.com/enescelik20071900-byte/LifeGuard-AI.git
 cd LifeGuard-AI
 pip install -r requirements.txt
+```
+
+### 🔑 .env Ayarları
+
+```env
+TELEGRAM_TOKEN=your_bot_token
+TELEGRAM_CHAT_ID=your_chat_id
+CAMERA_SOURCE=0
+```
+
+### ▶️ Çalıştırma
+
+```bash
+python proje.py
+```
+
+### 🐳 Docker
+
+```bash
+docker build -t lifeguard-ai .
+docker run -p 5000:5000 lifeguard-ai
+```
+
+---
+
+## 👨‍💻 Geliştirici
+
+**Enes Çelik**
