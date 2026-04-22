@@ -1,11 +1,15 @@
-import os
 from dotenv import load_dotenv
+import os
+import sys
 
-load_dotenv() # .env dosyasını sisteme yükle
+# Windows ise winsound yükle, değilse hata vermesin diye sys.platform kontrolü
+if sys.platform == "win32":
+    import winsound
+
+load_dotenv() # .env dosyasını yükle
 import cv2
 import mediapipe as mp
 import time
-import winsound
 import math
 import sqlite3
 import requests
@@ -14,12 +18,27 @@ from datetime import datetime
 from collections import deque
 from flask import Flask, render_template_string, Response, jsonify
 
+# --- ALARM FONKSİYONU ---
+def trigger_alarm():
+    if sys.platform == "win32":
+        winsound.Beep(1000, 500)
+    else:
+        print("Sesli uyarı tetiklendi (Sunucuda ses çalınamaz).")
+
 # --- AYARLAR ---
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 KAFA_ACI_ESIGI = 40 
-OMUZ_ESIGI = 8         
-CAMERA_SOURCE = 0 
+OMUZ_ESIGI = 8        
+
+cam_src = os.getenv("CAMERA_SOURCE", "0")
+if cam_src.isdigit():
+    CAMERA_SOURCE = int(cam_src)
+else:
+    CAMERA_SOURCE = cam_src
+
+# Kamera başlatma
+cap = cv2.VideoCapture(CAMERA_SOURCE)
 
 # --- VERİTABANI ---
 def init_db():
@@ -49,7 +68,7 @@ def background_evidence_task(photo_frame, video_frames, message):
         cv2.imwrite(photo_name, photo_frame)
         
         h, w, _ = photo_frame.shape
-        fourcc = cv2.VideoWriter_fourcc(*'avc1') 
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v') 
         out = cv2.VideoWriter(video_name, fourcc, 20.0, (w, h))
         for f in video_frames: out.write(f)
         out.release()
@@ -68,17 +87,14 @@ mp_pose = mp.solutions.pose
 mp_drawing = mp.solutions.drawing_utils
 pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5, model_complexity=0)
 
-cap = cv2.VideoCapture(CAMERA_SOURCE)
 video_buffer = deque(maxlen=100) 
 angle_history = deque(maxlen=15) 
 start_time = 0
 is_suspicious = is_logged = False
-face_memory_start = 0
-progress_bar = 0
 frame_counter = 0
 
 def generate_frames():
-    global start_time, is_suspicious, is_logged, progress_bar, frame_counter, face_memory_start, cap
+    global start_time, is_suspicious, is_logged, frame_counter, cap
     
     last_results = None
     
@@ -129,16 +145,16 @@ def generate_frames():
                         msg = f"⚠️ TEHLIKE! {status}\nUser: ENES CELIK\n{detay}\nSaat: {datetime.now().strftime('%H:%M:%S')}"
                         threading.Thread(target=background_evidence_task, args=(frame.copy(), list(video_buffer), msg)).start()
                         
-                        winsound.Beep(1000, 500)
+                        trigger_alarm() # Yeni fonksiyonu çağırdık
                         is_logged = True
                 else:
                     is_suspicious = is_logged = False
-                    start_time = progress_bar = 0
+                    start_time = 0
             else:
                 is_suspicious = is_logged = False
         else:
             is_suspicious = is_logged = False
-            start_time = progress_bar = 0
+            start_time = 0
 
         # --- HUD ÇİZİMİ ---
         cv2.rectangle(frame, (10, 10), (450, 180), (0,0,0), -1) 
@@ -149,14 +165,9 @@ def generate_frames():
         cv2.putText(frame, f"DURUM: {'TEHLIKE' if is_suspicious else 'OK'}", (20, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.7, clr, 2)
         cv2.putText(frame, f"Kafa Acisi: {int(avg_angle)} | Omuz Acisi: {int(s_tilt)}", (20, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
         
-        if is_suspicious:
-            cv2.rectangle(frame, (20, 160), (360, 170), (255, 255, 255), 1)
-            cv2.rectangle(frame, (21, 161), (21 + int(progress_bar*3.38), 169), (0, 165, 255), -1)
-
         ret, buffer = cv2.imencode('.jpg', frame)
         yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
 
-# --- WEB PANEL ---
 @app.route('/')
 def index():
     return render_template_string('''
@@ -212,4 +223,5 @@ def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, threaded=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, threaded=True)
