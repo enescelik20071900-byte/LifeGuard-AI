@@ -28,11 +28,20 @@ LifeGuard AI, günümüz güvenlik ihtiyaçlarına modern çözümler sunan, hem
 * **Database**: SQLite (Olay günlüğü ve analiz verileri)
 * **Network**: REST API (Telegram Bot)
 
-## ⚙️ Kurulum
+## ⚙️ Kurulum ve Gereksinimler
 
-### 1. Ön Hazırlık
-Projenin çalıştığı dizinde `.env` dosyanızı oluşturun ve gerekli değişkenleri girin:
-```env
-TELEGRAM_TOKEN=your_token_here
-TELEGRAM_CHAT_ID=your_id_here
-CAMERA_SOURCE=0
+Proje **Python 3.9+** sürümü ile geliştirilmiştir. Bağımlılıklar `requirements.txt` dosyasında tanımlanmıştır.
+
+### 1. Gerekli Kütüphaneler
+Projenin ihtiyaç duyduğu ana kütüphaneler şunlardır:
+* `flask`: Web arayüzü ve sunucu yönetimi.
+* `mediapipe`: Postür tespiti ve AI model motoru.
+* `opencv-python-headless`: Görüntü işleme (Headless sürüm sunucu optimizasyonu içindir).
+* `requests`: Telegram bot API ile haberleşme.
+* `python-dotenv`: `.env` dosyası üzerinden güvenli konfigürasyon yönetimi.
+
+### 2. Adım Adım Kurulum
+1. **Repoyu Klonlayın:**
+   ```bash
+   git clone [https://github.com/KULLANICI_ADIN/LifeGuard-AI.git](https://github.com/KULLANICI_ADIN/LifeGuard-AI.git)
+   cd LifeGuard-AI
