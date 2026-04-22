@@ -33,5 +33,24 @@ Proje **Python 3.9+** sürümü ile geliştirilmiştir. Bağımlılıklar `requi
 ### 1. Adım: Klonlama ve Kurulum
 ```bash
 git clone [https://github.com/](https://github.com/)<KULLANICI_ADIN>/LifeGuard-AI.git
+2. Adım: Yapılandırma (.env)
+Proje dizininde .env adında bir dosya oluşturun ve şu bilgileri ekleyin:
+
+Kod snippet'i
+TELEGRAM_TOKEN=sizin_bot_tokeniniz
+TELEGRAM_CHAT_ID=sizin_chat_idniz
+CAMERA_SOURCE=0
+3. Adım: Çalıştırma
+Projeyi yerel ortamda çalıştırmak için:
+
+Bash
+python proje.py
+4. Adım: Docker ile Çalıştırma (Cloud Ready)
+Sistemi herhangi bir sunucuda veya konteyner içinde çalıştırmak için:
+
+Bash
+docker build -t lifeguard-ai .
+docker run -p 5000:5000 lifeguard-ai
+Geliştirici: Enes Çelik
 cd LifeGuard-AI
 pip install -r requirements.txt
