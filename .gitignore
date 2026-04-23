@@ -1,5 +1,4 @@
-.env
+mediapipe/
+mediapipe.py
 __pycache__/
 *.pyc
-lifeguard_logs.db
-venv/
