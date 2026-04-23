@@ -1,0 +1,18 @@
+# Python önbellekleri ve dosyaları
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Kütüphane klasörleri (Asla repoya yüklenmemeli)
+mediapipe/
+env/
+venv/
+.env
+
+# Veritabanları
+*.db
+
+# İndirilenler
+evidence.jpg
+evidence.mp4
