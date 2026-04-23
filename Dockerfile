@@ -1,19 +1,17 @@
 FROM python:3.9-slim
 
-# Gerekli sistem kütüphaneleri
+# Sistem kütüphanelerini güncelle (OpenCV için şart)
 RUN apt-get update && apt-get install -y \
-    libgl1 \
+    libgl1-mesa-glx \
     libglib2.0-0 \
-    libx264-dev \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-
-# Tüm dosyaları kopyala
 COPY . .
 
-# Kütüphaneleri yükle
+# Cache'i zorla temizle ve paketleri kur
+RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Uygulamayı başlat
+# Çalıştır
 CMD ["python", "proje.py"]
