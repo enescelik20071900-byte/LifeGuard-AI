@@ -37,9 +37,6 @@ if cam_src.isdigit():
 else:
     CAMERA_SOURCE = cam_src
 
-# Kamera başlatma
-cap = cv2.VideoCapture(CAMERA_SOURCE)
-
 # --- VERİTABANI ---
 def init_db():
     conn = sqlite3.connect('lifeguard_logs.db')
@@ -68,7 +65,6 @@ def background_evidence_task(photo_frame, video_frames, message):
         cv2.imwrite(photo_name, photo_frame)
         
         h, w, _ = photo_frame.shape
-        # mp4v yerine avc1 (H.264) kullanıyoruz, bu tüm cihazlarda sorunsuz çalışır
         fourcc = cv2.VideoWriter_fourcc(*'avc1') 
         out = cv2.VideoWriter(video_name, fourcc, 20.0, (w, h))
         
@@ -76,7 +72,6 @@ def background_evidence_task(photo_frame, video_frames, message):
             out.write(f)
         out.release()
         
-        # Telegram'a gönderme kısmı aynı...
         requests.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage", data={"chat_id": TELEGRAM_CHAT_ID, "text": message})
         with open(photo_name, "rb") as p: requests.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendPhoto", files={"photo": p}, data={"chat_id": TELEGRAM_CHAT_ID})
         with open(video_name, "rb") as v: requests.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendVideo", files={"video": v}, data={"chat_id": TELEGRAM_CHAT_ID})
@@ -98,13 +93,16 @@ is_suspicious = is_logged = False
 frame_counter = 0
 
 def generate_frames():
-    global start_time, is_suspicious, is_logged, frame_counter, cap
+    global start_time, is_suspicious, is_logged, frame_counter
+    
+    # Sunucu uyumlu kamera başlatma
+    cap = cv2.VideoCapture(CAMERA_SOURCE)
     
     last_results = None
     
     while True:
         if not cap.isOpened():
-            cap = cv2.VideoCapture(CAMERA_SOURCE)
+            # Kamera bulunamazsa bekle
             time.sleep(1)
             continue
             
@@ -118,7 +116,7 @@ def generate_frames():
         frame_small = cv2.resize(frame, (640, 480))
         avg_angle = 0
         s_tilt = 0
-        progress_bar = 0 # Barı her seferinde sıfırla
+        progress_bar = 0 
 
         if frame_counter % 3 == 0:
             rgb_frame = cv2.cvtColor(frame_small, cv2.COLOR_BGR2RGB)
@@ -170,11 +168,8 @@ def generate_frames():
         cv2.putText(frame, f"DURUM: {'TEHLIKE' if is_suspicious else 'OK'}", (20, 75), cv2.FONT_HERSHEY_SIMPLEX, 0.7, clr, 2)
         cv2.putText(frame, f"Kafa Acisi: {int(avg_angle)} | Omuz Acisi: {int(s_tilt)}", (20, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
         
-        # --- YENİ EKLENEN: PROGRESS BAR ---
         if is_suspicious:
-            # Bar Çerçevesi (Arka Plan)
             cv2.rectangle(frame, (20, 130), (220, 150), (255, 255, 255), 1)
-            # Bar Dolumu (İlerleme)
             bar_width = int(200 * (progress_bar / 100))
             cv2.rectangle(frame, (20, 130), (20 + bar_width, 150), clr, -1)
             cv2.putText(frame, f"%{progress_bar}", (230, 147), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
