@@ -1,3 +1,6 @@
+import mediapipe as mp
+print(f"DEBUG: Mediapipe şurada: {mp.__file__}")
+print(f"DEBUG: Mediapipe içeriği: {dir(mp)}")
 from dotenv import load_dotenv
 import os
 import sys
