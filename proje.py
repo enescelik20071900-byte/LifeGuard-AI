@@ -9,6 +9,15 @@ if sys.platform == "win32":
 load_dotenv() # .env dosyasını yükle
 import cv2
 import mediapipe as mp
+
+# --- TANI KOYUCU (DEBUG) SATIRI ---
+# Hatanın nedenini loglardan görebilmek için eklendi.
+try:
+    print(f"DEBUG: Mediapipe buradan yükleniyor: {mp.__file__}")
+except Exception as e:
+    print(f"DEBUG: Mediapipe yüklenemedi: {e}")
+# -----------------------------------
+
 import time
 import math
 import sqlite3
@@ -82,9 +91,17 @@ init_db()
 
 # --- AI MOTORU ---
 app = Flask(__name__)
-mp_pose = mp.solutions.pose
-mp_drawing = mp.solutions.drawing_utils
-pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5, model_complexity=0)
+# Mediapipe'i güvenli çağır
+try:
+    mp_pose = mp.solutions.pose
+    mp_drawing = mp.solutions.drawing_utils
+except AttributeError:
+    print("CRITICAL: 'mediapipe.solutions' bulunamadı! Lütfen repodaki mediapipe klasörünü/dosyasını silin.")
+    # Uygulamayı durdurmamak için boş ata (hata verecek ama sebebi açık)
+    mp_pose = None
+    mp_drawing = None
+
+pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5, model_complexity=0) if mp_pose else None
 
 video_buffer = deque(maxlen=100) 
 angle_history = deque(maxlen=15) 
@@ -95,14 +112,11 @@ frame_counter = 0
 def generate_frames():
     global start_time, is_suspicious, is_logged, frame_counter
     
-    # Sunucu uyumlu kamera başlatma
     cap = cv2.VideoCapture(CAMERA_SOURCE)
-    
     last_results = None
     
     while True:
         if not cap.isOpened():
-            # Kamera bulunamazsa bekle
             time.sleep(1)
             continue
             
@@ -120,7 +134,8 @@ def generate_frames():
 
         if frame_counter % 3 == 0:
             rgb_frame = cv2.cvtColor(frame_small, cv2.COLOR_BGR2RGB)
-            last_results = pose.process(rgb_frame)
+            if pose:
+                last_results = pose.process(rgb_frame)
             
         if last_results and last_results.pose_landmarks:
             lm = last_results.pose_landmarks.landmark
