@@ -1,18 +1,24 @@
-# Python önbellekleri ve dosyaları
+# --- Gizli Bilgiler ---
+.env
+
+# --- Veritabanları ---
+*.db
+
+# --- Python & Derleme ---
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# Kütüphane klasörleri (Asla repoya yüklenmemeli)
-mediapipe/
-env/
+# --- Sanal Ortamlar (Kütüphanelerin kurulu olduğu yer) ---
+# Genelde venv veya env klasörleri buraya yüklenir, bunları ignore etmelisin
 venv/
-.env
+env/
+.venv/
 
-# Veritabanları
-*.db
+# --- IDE Dosyaları ---
+.vscode/
+.DS_Store
 
-# İndirilenler
-evidence.jpg
-evidence.mp4
+# --- Proje İçeriği (İgnore edilmemeli) ---
+# mediapipe klasörünü buradan SİL, o bir kütüphanedir, ignore edilmez.
