@@ -10,6 +10,15 @@ import threading
 from datetime import datetime
 from collections import deque
 from flask import Flask, render_template_string, Response, jsonify
+import os
+from dotenv import load_dotenv
+
+# .env dosyasındaki bilgileri yükle
+load_dotenv()
+
+# Artık kodun içinde şifre yok, sistem dosyadan çekecek
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # --- AYARLAR ---
 TELEGRAM_TOKEN = "8606813928:AAG-mugYrEUfMRh7Rnmbder6yAKjI-CKaDw"
