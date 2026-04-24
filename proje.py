@@ -16,14 +16,41 @@ TELEGRAM_TOKEN = "8606813928:AAG-mugYrEUfMRh7Rnmbder6yAKjI-CKaDw"
 TELEGRAM_CHAT_ID = "8280019169"
 KAFA_ACI_ESIGI = 40 
 OMUZ_ESIGI = 8         
-CAMERA_SOURCE = 0 
+CAMERA_SOURCE = "http://10.166.106.89:8080/video" # IP Webcam adresin
+
+# --- THREADED CAMERA CLASS (Kasma Önleyici) ---
+class CameraStream:
+    def __init__(self, src):
+        self.cap = cv2.VideoCapture(src)
+        self.frame = None
+        self.lock = threading.Lock()
+        self.running = True
+        self.thread = threading.Thread(target=self.update, args=())
+        self.thread.daemon = True
+        self.thread.start()
+
+    def update(self):
+        while self.running:
+            ret, frame = self.cap.read()
+            if ret:
+                with self.lock:
+                    self.frame = frame
+            time.sleep(0.01)
+
+    def read(self):
+        with self.lock:
+            return self.frame
+
+    def stop(self):
+        self.running = False
+        self.cap.release()
 
 # --- VERİTABANI ---
 def init_db():
     conn = sqlite3.connect('lifeguard_logs.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS logs 
-                  (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, user TEXT, status TEXT, details TEXT)''')
+                (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, user TEXT, status TEXT, details TEXT)''')
     conn.commit()
     conn.close()
 
@@ -57,37 +84,33 @@ def background_evidence_task(photo_frame, video_frames, message):
     except Exception as e:
         print(f"Gönderim hatası: {e}")
 
+# --- BAŞLATMALAR ---
 init_db()
-
-# --- AI MOTORU ---
+stream = CameraStream(CAMERA_SOURCE)
 app = Flask(__name__)
 mp_pose = mp.solutions.pose
 mp_drawing = mp.solutions.drawing_utils
 pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5, model_complexity=0)
 
-cap = cv2.VideoCapture(CAMERA_SOURCE)
 video_buffer = deque(maxlen=100) 
 angle_history = deque(maxlen=15) 
 start_time = 0
 is_suspicious = is_logged = False
-face_memory_start = 0
 progress_bar = 0
 frame_counter = 0
 
 def generate_frames():
-    global start_time, is_suspicious, is_logged, progress_bar, frame_counter, face_memory_start, cap
+    global start_time, is_suspicious, is_logged, progress_bar, frame_counter
     
     last_results = None
     
     while True:
-        if not cap.isOpened():
-            cap = cv2.VideoCapture(CAMERA_SOURCE)
-            time.sleep(1)
+        frame = stream.read()
+        
+        if frame is None:
+            time.sleep(0.1)
             continue
             
-        success, frame = cap.read()
-        if not success: continue
-        
         video_buffer.append(frame.copy())
         frame_counter += 1
         now_ts = time.time()
@@ -96,6 +119,7 @@ def generate_frames():
         avg_angle = 0
         s_tilt = 0
 
+        # AI Analizi
         if frame_counter % 3 == 0:
             rgb_frame = cv2.cvtColor(frame_small, cv2.COLOR_BGR2RGB)
             last_results = pose.process(rgb_frame)
@@ -125,7 +149,6 @@ def generate_frames():
                         
                         msg = f"⚠️ TEHLIKE! {status}\nUser: ENES CELIK\n{detay}\nSaat: {datetime.now().strftime('%H:%M:%S')}"
                         threading.Thread(target=background_evidence_task, args=(frame.copy(), list(video_buffer), msg)).start()
-                        
                         winsound.Beep(1000, 500)
                         is_logged = True
                 else:
@@ -137,7 +160,7 @@ def generate_frames():
             is_suspicious = is_logged = False
             start_time = progress_bar = 0
 
-        # --- HUD ÇİZİMİ ---
+        # HUD ÇİZİMİ
         cv2.rectangle(frame, (10, 10), (450, 180), (0,0,0), -1) 
         st = datetime.now().strftime('%H:%M:%S')
         clr = (0, 0, 255) if is_logged else ((0, 165, 255) if is_suspicious else (0, 255, 0))
@@ -153,7 +176,7 @@ def generate_frames():
         ret, buffer = cv2.imencode('.jpg', frame)
         yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
 
-# --- WEB PANEL ---
+# --- WEB PANEL ROUTE ---
 @app.route('/')
 def index():
     return render_template_string('''
@@ -209,4 +232,7 @@ def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, threaded=True)
+    try:
+        app.run(host='0.0.0.0', port=5000, threaded=True)
+    except KeyboardInterrupt:
+        stream.stop()
