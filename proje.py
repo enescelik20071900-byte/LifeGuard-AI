@@ -2,7 +2,11 @@ import os
 import cv2
 import mediapipe as mp
 import time
-import winsound
+import platform
+
+# Eğer Windows ise winsound'u import et, değilse import etme
+if platform.system() == 'Windows':
+    import winsound
 import math
 import sqlite3
 import requests
@@ -242,6 +246,6 @@ def video_feed():
 
 if __name__ == "__main__":
     try:
-        app.run(host='0.0.0.0', port=5000, threaded=True)
+        app.run(host='0.0.0.0', port=7860, threaded=True)
     except KeyboardInterrupt:
         stream.stop()
