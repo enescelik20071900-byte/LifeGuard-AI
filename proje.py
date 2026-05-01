@@ -29,7 +29,7 @@ TELEGRAM_TOKEN = "8606813928:AAG-mugYrEUfMRh7Rnmbder6yAKjI-CKaDw"
 TELEGRAM_CHAT_ID = "8280019169"
 KAFA_ACI_ESIGI = 40 
 OMUZ_ESIGI = 8         
-CAMERA_SOURCE = "http://10.166.106.89:8080/video" # IP Webcam adresin
+CAMERA_SOURCE = "https://olympics-scholar-backwash.ngrok-free.dev/video"
 
 # --- THREADED CAMERA CLASS (Kasma Önleyici) ---
 class CameraStream:
