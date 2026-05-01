@@ -107,5 +107,3 @@ Bilgisayar Mühendisliği
 
 ---
 
-Projeyi beğendiysen ⭐ bırakmayı unutma!
-Geliştirmeye katkı sağlamak için pull request gönderebilirsin.
