@@ -1,67 +1,75 @@
 # 🛡️ LifeGuard AI
 
-**LifeGuard AI**, postür analizi ve yapay zeka tabanlı güvenlik takibi için geliştirilmiş, ölçeklenebilir ve modüler bir sistemdir.
+**LifeGuard AI**, MediaPipe Pose Detection teknolojisiyle insan postürünü gerçek zamanlı analiz eden ve yerel ağdaki kamera görüntülerini buluta güvenli şekilde aktarabilen hibrit bir yapay zeka güvenlik sistemidir.
 
 ---
 
 ## 📌 Proje Hakkında
 
-LifeGuard AI, günümüz güvenlik ihtiyaçlarına modern çözümler sunan; hem **yerel (local)** hem de **bulut (cloud)** ortamlarında çalışabilen bir yapay zeka sistemidir.
+LifeGuard AI, geleneksel güvenlik sistemlerinden farklı olarak yalnızca görüntü kaydı yapmakla kalmaz; görüntüdeki insan hareketlerini matematiksel olarak analiz eder.
 
-Sistem, **MediaPipe Pose Detection** teknolojisini kullanarak insan postürünü gerçek zamanlı analiz eder ve:
+MediaPipe Pose Detection kullanarak insan vücudundaki **33 farklı eklem noktasını (landmarks)** takip eder ve bu veriler üzerinden anlamlı çıkarımlar yapar.
 
-* Bayılma
-* Uyku hali
-* Duruş bozukluğu
+### 🎯 Tespit Edilen Durumlar
 
-gibi durumları tespit ederek anında bildirim gönderir.
+* 🚨 **Bayılma / Düşme Tespiti**
+  Omuz çizgisinin belirli bir eşik değerin altına düşmesi
+
+* 😴 **Uyku / Hareketsizlik Tespiti**
+  Uzun süreli hareketsizlik + baş pozisyonu analizi
+
+* 🚶 **Duruş & Alan Takibi**
+  Belirlenen güvenli alan dışına çıkış
 
 ---
 
 ## 🚀 Geliştirme Yol Haritası (Roadmap)
 
-* ✅ Core AI (MediaPipe Pose Detection) entegrasyonu
-* ✅ Telegram Bot API ile anlık bildirim sistemi
-* ✅ Docker container altyapısı
-* 🔄 IP Kamera (RTSP/Stream) desteği ve optimizasyonu
-* 🔄 Bulut (Cloud/Render) deploy süreçleri
-* 🧠 Çoklu kamera desteği
-* 📊 Yönetici dashboard paneli
+### ✅ Tamamlananlar
+
+* MediaPipe Pose Detection entegrasyonu
+* Ngrok ile yerel kamerayı internete açma
+* Hugging Face Spaces ile cloud deployment
+* SQLite ile olay kayıt sistemi
+
+### 🔄 Devam Edenler
+
+* Çoklu kamera (multi-stream) desteği
+* React tabanlı admin dashboard paneli
 
 ---
 
 ## 🎯 Mevcut Özellikler
 
-* **📡 Anlık Postür Analizi**
-  Gerçek zamanlı duruş takibi ve açısal analiz
+### 📡 Ngrok & Bulut Entegrasyonu
 
-* **🚨 Acil Durum Tespiti**
-  Bayılma, uyku veya hareketsizlik algılama
+Yerel ağdaki IP kamera (telefon/webcam) görüntüsünü güvenli bir tünel üzerinden buluta aktarma.
 
-* **📲 Telegram Entegrasyonu**
-  Olay anında fotoğraf ve video ile bildirim
+### 🚨 Akıllı Analiz & Bildirim
 
-* **🐳 Containerized Architecture**
-  Docker ile hızlı, taşınabilir ve izole çalışma
+33 noktalı insan iskelet modeli üzerinden anlık analiz ve anomali durumunda olay tetikleme sistemi.
+
+### 🐳 Containerized Architecture
+
+Docker ve Hugging Face container altyapısı sayesinde hızlı ve taşınabilir kurulum.
 
 ---
 
 ## 🛠️ Teknik Mimari
 
-| Katman   | Teknoloji                  |
-| -------- | -------------------------- |
-| Core AI  | MediaPipe (Pose Detection) |
-| Backend  | Python, Flask, Threading   |
-| Database | SQLite                     |
-| Network  | REST API, Telegram Bot API |
+| Katman     | Teknoloji                       |
+| ---------- | ------------------------------- |
+| Core AI    | MediaPipe (Pose Landmark Lite)  |
+| Backend    | Python 3.9, Flask, Threading    |
+| Tünelleme  | Ngrok (Reverse Proxy)           |
+| Cloud      | Hugging Face Spaces (Container) |
+| Veritabanı | SQLite                          |
 
 ---
 
-## ⚙️ Kurulum ve Gereksinimler
+## ⚙️ Kurulum ve Çalıştırma
 
-Proje **Python 3.9+** ile geliştirilmiştir.
-
-### 🔧 Kurulum
+### 1️⃣ Projeyi Klonla
 
 ```bash
 git clone https://github.com/enescelik20071900-byte/LifeGuard-AI.git
@@ -69,25 +77,24 @@ cd LifeGuard-AI
 pip install -r requirements.txt
 ```
 
-### 🔑 .env Ayarları
+---
 
-```env
-TELEGRAM_TOKEN=your_bot_token
-TELEGRAM_CHAT_ID=your_chat_id
-CAMERA_SOURCE=0
-```
+### 2️⃣ Kamera Bağlantısı (Remote Camera)
 
-### ▶️ Çalıştırma
+Eğer kameranız yerel ağdaysa (örneğin telefon IP Webcam), ngrok ile tünel başlatın:
 
 ```bash
-python proje.py
+ngrok http [KAMERA_IP]:[PORT]
 ```
 
-### 🐳 Docker
+---
 
-```bash
-docker build -t lifeguard-ai .
-docker run -p 5000:5000 lifeguard-ai
+### 3️⃣ Kamera Kaynağını Ayarla
+
+`.env` dosyasında veya `proje.py` içinde:
+
+```python
+CAMERA_SOURCE = "https://xxxx.ngrok-free.dev/video"
 ```
 
 ---
@@ -95,3 +102,10 @@ docker run -p 5000:5000 lifeguard-ai
 ## 👨‍💻 Geliştirici
 
 **Enes Çelik**
+Bursa Uludağ Üniversitesi
+Bilgisayar Mühendisliği
+
+---
+
+Projeyi beğendiysen ⭐ bırakmayı unutma!
+Geliştirmeye katkı sağlamak için pull request gönderebilirsin.
