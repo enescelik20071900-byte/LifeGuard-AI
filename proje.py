@@ -7,6 +7,9 @@ import platform
 # Eğer Windows ise winsound'u import et, değilse import etme
 if platform.system() == 'Windows':
     import winsound
+     winsound.Beep(1000, 500)
+else:
+    print("⚠️ TEHLIKE: Sesli uyarı tetiklendi (Linux üzerinde ses çalınamıyor)")
 import math
 import sqlite3
 import requests
