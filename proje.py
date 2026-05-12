@@ -25,8 +25,6 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 # --- AYARLAR ---
-TELEGRAM_TOKEN = "8606813928:AAG-mugYrEUfMRh7Rnmbder6yAKjI-CKaDw"
-TELEGRAM_CHAT_ID = "8280019169"
 KAFA_ACI_ESIGI = 40 
 OMUZ_ESIGI = 8         
 CAMERA_SOURCE = "https://olympics-scholar-backwash.ngrok-free.dev/video"
